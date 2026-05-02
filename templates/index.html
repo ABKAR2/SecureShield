@@ -1,0 +1,841 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SecureShield Console</title>
+    <style>
+        :root {
+            --bg: #eef3f8;
+            --panel: #ffffff;
+            --text: #17212b;
+            --muted: #657487;
+            --line: #d7e0ea;
+            --primary: #155e9f;
+            --primary-dark: #0f4778;
+            --success: #147a55;
+            --warning: #9a5b00;
+            --danger: #b42318;
+            --surface: #f3f7fb;
+            --ink: #0f1f2e;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--text);
+            font-family: Arial, Helvetica, sans-serif;
+            letter-spacing: 0;
+        }
+
+        button,
+        input,
+        select {
+            font: inherit;
+        }
+
+        .topbar {
+            background: var(--ink);
+            color: #ffffff;
+            border-bottom: 1px solid #26394b;
+        }
+
+        .topbar-inner {
+            width: min(1200px, calc(100% - 32px));
+            min-height: 82px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .shield-mark {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            display: grid;
+            place-items: center;
+            color: #ffffff;
+            background: var(--primary);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            font-weight: 700;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.55rem;
+            line-height: 1.15;
+        }
+
+        .subtitle {
+            margin: 4px 0 0;
+            color: #b8c7d8;
+            font-size: 0.92rem;
+        }
+
+        .session {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pill {
+            min-height: 32px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid #31495e;
+            background: #172a3a;
+            color: #c8d5e2;
+            font-size: 0.86rem;
+            white-space: nowrap;
+        }
+
+        .pill strong {
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        .pill.success {
+            border-color: #8cc8ae;
+            color: #d8f5e9;
+            background: #174331;
+        }
+
+        .app-shell {
+            width: min(1200px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 22px 0 36px;
+        }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+            gap: 18px;
+            align-items: start;
+        }
+
+        .rail,
+        .main-stack {
+            display: grid;
+            gap: 16px;
+            min-width: 0;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 18px;
+            min-width: 0;
+            box-shadow: 0 10px 24px rgba(18, 38, 63, 0.06);
+        }
+
+        .panel.compact {
+            padding: 16px;
+        }
+
+        .panel.wide {
+            grid-column: 1 / -1;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .panel h2 {
+            margin: 0;
+            font-size: 1.02rem;
+            line-height: 1.3;
+        }
+
+        .badge {
+            min-height: 26px;
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 4px 8px;
+            background: var(--surface);
+            color: var(--muted);
+            border: 1px solid var(--line);
+            font-size: 0.76rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .rail .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .field {
+            display: grid;
+            gap: 6px;
+        }
+
+        .field.full {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            color: var(--muted);
+            font-size: 0.84rem;
+            font-weight: 700;
+        }
+
+        input,
+        select {
+            width: 100%;
+            min-height: 42px;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            background: #ffffff;
+            color: var(--text);
+            padding: 9px 10px;
+        }
+
+        input:focus,
+        select:focus,
+        button:focus-visible {
+            outline: 3px solid rgba(21, 94, 159, 0.2);
+            outline-offset: 2px;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .actions.split {
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        button {
+            min-height: 40px;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            padding: 9px 13px;
+            color: #ffffff;
+            background: var(--primary);
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        button:hover {
+            background: var(--primary-dark);
+        }
+
+        button.secondary {
+            color: var(--text);
+            background: var(--surface);
+            border-color: var(--line);
+        }
+
+        button.secondary:hover {
+            background: #e2eaf2;
+        }
+
+        button.danger {
+            background: var(--danger);
+        }
+
+        button.danger:hover {
+            background: #8f1d14;
+        }
+
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.55;
+        }
+
+        .profile-box,
+        .token-box,
+        .result-box {
+            min-height: 112px;
+            margin: 0;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #f8fafc;
+            padding: 12px;
+            overflow: auto;
+            color: #1f2a37;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.9rem;
+            line-height: 1.45;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .token-box {
+            min-height: 72px;
+            color: var(--muted);
+        }
+
+        .result-box {
+            min-height: 190px;
+        }
+
+        .status-line {
+            min-height: 24px;
+            margin-top: 10px;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .status-line.success {
+            color: var(--success);
+        }
+
+        .status-line.warning {
+            color: var(--warning);
+        }
+
+        .status-line.danger {
+            color: var(--danger);
+        }
+
+        @media (max-width: 900px) {
+            .topbar-inner,
+            .app-shell {
+                width: min(100% - 24px, 1200px);
+            }
+
+            .topbar-inner {
+                align-items: flex-start;
+                flex-direction: column;
+                padding: 16px 0;
+            }
+
+            .session {
+                justify-content: flex-start;
+            }
+
+            .workspace,
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .panel.wide {
+                grid-column: auto;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .topbar-inner,
+            .app-shell {
+                width: min(100% - 18px, 1200px);
+            }
+
+            .brand {
+                align-items: flex-start;
+            }
+
+            .shield-mark {
+                width: 38px;
+                height: 38px;
+            }
+
+            h1 {
+                font-size: 1.28rem;
+            }
+
+            .panel {
+                padding: 14px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="topbar">
+        <div class="topbar-inner">
+            <div class="brand">
+                <div class="shield-mark" aria-hidden="true">SS</div>
+                <div>
+                    <h1>SecureShield Console</h1>
+                    <p class="subtitle">RBAC API control panel</p>
+                </div>
+            </div>
+            <div class="session" aria-live="polite">
+                <span class="pill" id="sessionStatus">Signed out</span>
+                <span class="pill" id="roleStatus">Role: none</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="app-shell">
+        <section class="workspace">
+            <aside class="rail">
+                <form class="panel compact" id="registerForm">
+                    <div class="panel-header">
+                        <h2>Create Account</h2>
+                        <span class="badge">Public</span>
+                    </div>
+                    <div class="form-grid">
+                        <div class="field">
+                            <label for="registerUsername">Username</label>
+                            <input id="registerUsername" name="username" autocomplete="username" required>
+                        </div>
+                        <div class="field">
+                            <label for="registerPassword">Password</label>
+                            <input id="registerPassword" name="password" type="password" autocomplete="new-password" required>
+                        </div>
+                        <div class="field">
+                            <label for="registerRole">Role</label>
+                            <select id="registerRole" name="role">
+                                <option value="user">User</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <button type="submit">Register</button>
+                    </div>
+                    <div class="status-line" id="registerStatus" aria-live="polite"></div>
+                </form>
+
+                <form class="panel compact" id="loginForm">
+                    <div class="panel-header">
+                        <h2>Session</h2>
+                        <span class="badge">JWT</span>
+                    </div>
+                    <div class="form-grid">
+                        <div class="field">
+                            <label for="loginUsername">Username</label>
+                            <input id="loginUsername" name="username" autocomplete="username" required>
+                        </div>
+                        <div class="field">
+                            <label for="loginPassword">Password</label>
+                            <input id="loginPassword" name="password" type="password" autocomplete="current-password" required>
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <button type="submit">Login</button>
+                        <button class="secondary" type="button" id="logoutButton">Logout</button>
+                    </div>
+                    <div class="status-line" id="loginStatus" aria-live="polite"></div>
+                </form>
+
+                <section class="panel compact">
+                    <div class="panel-header">
+                        <h2>API Status</h2>
+                        <span class="badge">Health</span>
+                    </div>
+                    <div class="actions">
+                        <button class="secondary" type="button" id="statusButton">Check API</button>
+                    </div>
+                    <div class="status-line" id="apiStatus" aria-live="polite"></div>
+                </section>
+            </aside>
+
+            <section class="main-stack">
+                <div class="main-grid">
+                    <section class="panel">
+                        <div class="panel-header">
+                            <h2>Profile</h2>
+                            <span class="badge">Protected</span>
+                        </div>
+                        <pre class="profile-box" id="profileOutput">No profile loaded.</pre>
+                        <div class="actions">
+                            <button class="secondary" type="button" id="loadProfileButton">Load Profile</button>
+                        </div>
+                    </section>
+
+                    <section class="panel">
+                        <div class="panel-header">
+                            <h2>Current Token</h2>
+                            <span class="badge">Preview</span>
+                        </div>
+                        <pre class="token-box" id="tokenPreview">No token stored in this browser.</pre>
+                    </section>
+
+                    <form class="panel" id="deleteForm">
+                        <div class="panel-header">
+                            <h2>Admin Delete User</h2>
+                            <span class="badge">Admin</span>
+                        </div>
+                        <div class="form-grid">
+                            <div class="field full">
+                                <label for="deleteUserId">User ID</label>
+                                <input id="deleteUserId" name="userId" inputmode="numeric" pattern="[0-9]+" required>
+                            </div>
+                        </div>
+                        <div class="actions">
+                            <button class="danger" type="submit" id="deleteButton">Delete User</button>
+                        </div>
+                        <div class="status-line" id="deleteStatus" aria-live="polite"></div>
+                    </form>
+
+                    <section class="panel">
+                        <div class="panel-header">
+                            <h2>Tamper Test</h2>
+                            <span class="badge">JWT</span>
+                        </div>
+                        <div class="form-grid">
+                            <div class="field full">
+                                <label for="tamperUserId">Target User ID</label>
+                                <input id="tamperUserId" inputmode="numeric" pattern="[0-9]+" value="1">
+                            </div>
+                        </div>
+                        <div class="actions">
+                            <button class="secondary" type="button" id="tamperButton">Test Tampered Role</button>
+                        </div>
+                        <div class="status-line" id="tamperStatus" aria-live="polite"></div>
+                    </section>
+
+                    <section class="panel wide">
+                        <div class="panel-header">
+                            <h2>Last Response</h2>
+                            <span class="badge">JSON</span>
+                        </div>
+                        <pre class="result-box" id="resultOutput">No request sent yet.</pre>
+                    </section>
+                </div>
+            </section>
+        </section>
+    </main>
+
+    <script>
+        const tokenKey = "secureShieldToken";
+
+        const elements = {
+            registerForm: document.getElementById("registerForm"),
+            loginForm: document.getElementById("loginForm"),
+            deleteForm: document.getElementById("deleteForm"),
+            loadProfileButton: document.getElementById("loadProfileButton"),
+            logoutButton: document.getElementById("logoutButton"),
+            statusButton: document.getElementById("statusButton"),
+            sessionStatus: document.getElementById("sessionStatus"),
+            roleStatus: document.getElementById("roleStatus"),
+            tokenPreview: document.getElementById("tokenPreview"),
+            profileOutput: document.getElementById("profileOutput"),
+            resultOutput: document.getElementById("resultOutput"),
+            registerStatus: document.getElementById("registerStatus"),
+            loginStatus: document.getElementById("loginStatus"),
+            deleteStatus: document.getElementById("deleteStatus"),
+            apiStatus: document.getElementById("apiStatus"),
+            tamperStatus: document.getElementById("tamperStatus"),
+            deleteButton: document.getElementById("deleteButton"),
+            tamperButton: document.getElementById("tamperButton"),
+            tamperUserId: document.getElementById("tamperUserId")
+        };
+
+        function getToken() {
+            return localStorage.getItem(tokenKey);
+        }
+
+        function setToken(token) {
+            if (token) {
+                localStorage.setItem(tokenKey, token);
+            } else {
+                localStorage.removeItem(tokenKey);
+            }
+            renderSession();
+        }
+
+        function decodePayload(token) {
+            if (!token || token.split(".").length < 2) {
+                return null;
+            }
+
+            try {
+                const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+                const padded = base64.padEnd(base64.length + (4 - base64.length % 4) % 4, "=");
+                return JSON.parse(atob(padded));
+            } catch (error) {
+                return null;
+            }
+        }
+
+        function renderSession() {
+            const token = getToken();
+            const payload = decodePayload(token);
+
+            elements.sessionStatus.className = "pill";
+            elements.roleStatus.className = "pill";
+
+            if (!token || !payload) {
+                elements.sessionStatus.textContent = "Signed out";
+                elements.roleStatus.textContent = "Role: none";
+                elements.tokenPreview.textContent = "No token stored in this browser.";
+                elements.deleteButton.disabled = true;
+                elements.tamperButton.disabled = true;
+                return;
+            }
+
+            elements.sessionStatus.className = "pill success";
+            elements.sessionStatus.innerHTML = "Signed in: <strong>" + escapeHtml(payload.username) + "</strong>";
+            elements.roleStatus.className = "pill success";
+            elements.roleStatus.innerHTML = "Role: <strong>" + escapeHtml(payload.role) + "</strong>";
+            elements.tokenPreview.textContent = token.slice(0, 42) + "...";
+            elements.deleteButton.disabled = false;
+            elements.tamperButton.disabled = false;
+        }
+
+        function escapeHtml(value) {
+            return String(value)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function setStatus(element, message, type) {
+            element.textContent = message;
+            element.className = "status-line" + (type ? " " + type : "");
+        }
+
+        function showResult(title, status, data) {
+            elements.resultOutput.textContent = JSON.stringify(
+                {
+                    request: title,
+                    status: status,
+                    response: data
+                },
+                null,
+                2
+            );
+        }
+
+        async function apiRequest(title, url, options = {}) {
+            const headers = options.headers ? { ...options.headers } : {};
+            const hasBody = Object.prototype.hasOwnProperty.call(options, "body");
+
+            if (hasBody) {
+                headers["Content-Type"] = "application/json";
+            }
+
+            const token = getToken();
+            if (options.authToken) {
+                headers.Authorization = "Bearer " + options.authToken;
+            } else if (options.auth && token) {
+                headers.Authorization = "Bearer " + token;
+            }
+
+            const response = await fetch(url, {
+                ...options,
+                headers,
+                auth: undefined,
+                authToken: undefined
+            });
+
+            let data = {};
+            try {
+                data = await response.json();
+            } catch (error) {
+                data = { message: "No JSON response." };
+            }
+
+            showResult(title, response.status, data);
+            return { ok: response.ok, status: response.status, data };
+        }
+
+        elements.registerForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const form = new FormData(event.currentTarget);
+            const payload = {
+                username: form.get("username"),
+                password: form.get("password"),
+                role: form.get("role")
+            };
+
+            const result = await apiRequest("POST /register", "/register", {
+                method: "POST",
+                body: JSON.stringify(payload)
+            });
+
+            setStatus(
+                elements.registerStatus,
+                result.ok ? "Account created." : result.data.error || "Registration failed.",
+                result.ok ? "success" : "danger"
+            );
+        });
+
+        elements.loginForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const form = new FormData(event.currentTarget);
+            const payload = {
+                username: form.get("username"),
+                password: form.get("password")
+            };
+
+            const result = await apiRequest("POST /login", "/login", {
+                method: "POST",
+                body: JSON.stringify(payload)
+            });
+
+            if (result.ok && result.data.token) {
+                setToken(result.data.token);
+                setStatus(elements.loginStatus, "Login successful.", "success");
+                loadProfile();
+            } else {
+                setStatus(elements.loginStatus, result.data.error || "Login failed.", "danger");
+            }
+        });
+
+        async function loadProfile() {
+            if (!getToken()) {
+                setStatus(elements.loginStatus, "Login first.", "warning");
+                return;
+            }
+
+            const result = await apiRequest("GET /profile", "/profile", {
+                method: "GET",
+                auth: true
+            });
+
+            if (result.ok) {
+                elements.profileOutput.textContent = JSON.stringify(result.data.user, null, 2);
+                setStatus(elements.loginStatus, "Profile loaded.", "success");
+            } else {
+                elements.profileOutput.textContent = result.data.error || "Profile request failed.";
+                setStatus(elements.loginStatus, result.data.error || "Profile request failed.", "danger");
+                if (result.status === 401) {
+                    setToken("");
+                }
+            }
+        }
+
+        elements.loadProfileButton.addEventListener("click", loadProfile);
+
+        elements.logoutButton.addEventListener("click", async () => {
+            if (!getToken()) {
+                setStatus(elements.loginStatus, "Already signed out.", "warning");
+                return;
+            }
+
+            const result = await apiRequest("POST /logout", "/logout", {
+                method: "POST",
+                auth: true
+            });
+
+            setToken("");
+            elements.profileOutput.textContent = "Signed out.";
+            setStatus(
+                elements.loginStatus,
+                result.ok ? "Logged out and token blacklisted." : result.data.error || "Signed out locally.",
+                result.ok ? "success" : "warning"
+            );
+        });
+
+        elements.deleteForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const form = new FormData(event.currentTarget);
+            const userId = String(form.get("userId") || "").trim();
+
+            if (!getToken()) {
+                setStatus(elements.deleteStatus, "Admin login required.", "warning");
+                return;
+            }
+
+            const result = await apiRequest("DELETE /user/" + userId, "/user/" + encodeURIComponent(userId), {
+                method: "DELETE",
+                auth: true
+            });
+
+            setStatus(
+                elements.deleteStatus,
+                result.ok ? result.data.message : result.data.error || "Delete failed.",
+                result.ok ? "success" : "danger"
+            );
+        });
+
+        function encodePayload(payload) {
+            const json = JSON.stringify(payload);
+            const base64 = btoa(json).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+            return base64;
+        }
+
+        function createTamperedToken(token) {
+            const parts = token.split(".");
+            const payload = decodePayload(token);
+
+            if (parts.length !== 3 || !payload) {
+                return "";
+            }
+
+            payload.role = "admin";
+            return parts[0] + "." + encodePayload(payload) + "." + parts[2];
+        }
+
+        elements.tamperButton.addEventListener("click", async () => {
+            const token = getToken();
+            if (!token) {
+                setStatus(elements.tamperStatus, "Login first.", "warning");
+                return;
+            }
+
+            const tamperedToken = createTamperedToken(token);
+            const userId = String(elements.tamperUserId.value || "1").trim() || "1";
+
+            const result = await apiRequest(
+                "DELETE /user/" + userId + " with tampered JWT role",
+                "/user/" + encodeURIComponent(userId),
+                {
+                    method: "DELETE",
+                    authToken: tamperedToken
+                }
+            );
+
+            setStatus(
+                elements.tamperStatus,
+                result.status === 401 ? "Tampered token rejected." : result.data.error || "Unexpected tamper result.",
+                result.status === 401 ? "success" : "danger"
+            );
+        });
+
+        elements.statusButton.addEventListener("click", async () => {
+            const result = await apiRequest("GET /api/status", "/api/status", {
+                method: "GET"
+            });
+
+            setStatus(
+                elements.apiStatus,
+                result.ok ? "API is running." : "API status check failed.",
+                result.ok ? "success" : "danger"
+            );
+        });
+
+        renderSession();
+    </script>
+</body>
+</html>
